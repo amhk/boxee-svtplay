@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<app>
+    <id>$(package)</id>
+    <name>SVT Play</name>
+    <version>$(version)</version>
+    <description>Stream video from SVT Play (http://svtplay.se)</description>
+    <thumb>http://FIXME/thumb.png</thumb>
+    <media>video</media>
+    <copyright>FIXME</copyright>
+    <email>marten.kongstad@gmail.com</email>
+    <type>skin</type>
+    <platform>all</platform>
+    <minversion>0.9.11</minversion>
+    <startWindow>$(window/main)</startWindow>
+    $(tag/test-app)
+</app>

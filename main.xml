@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<window type="window" id="$(window/main)">
+    <controls>
+        <include>Common_Background</include>
+        <include>Common_Status</include>
+        <control type="label" id="$(label/hello-world)">
+            <posx>32</posx>
+            <posy>32</posy>
+            <width>320</width>
+            <height>48</height>
+            <textcolor>grey</textcolor>
+            <label>Hello world (version $(version))</label>
+        </control>
+    </controls>
+</window>
