@@ -11,6 +11,7 @@ BEGIN {
     a[i++] = "tag/test-app:<test-app>true</test-app>"
     a[i++] = "window/main:" id_window++
     a[i++] = "label/hello-world:" id_control++
+    a[i++] = "button/go:" id_control++
 
     # sanity check:
     #   * key duplicates are not allowed and will throw an error

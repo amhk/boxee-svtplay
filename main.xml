@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <window type="window" id="$(window/main)">
+    <defaultcontrol always="true">$(button/go)</defaultcontrol>
     <controls>
         <include>Common_Background</include>
         <include>Common_Status</include>
@@ -10,6 +11,42 @@
             <height>48</height>
             <textcolor>grey</textcolor>
             <label>Hello world (version $(version))</label>
+        </control>
+        <control type="button" id="$(button/go)">
+            <posx>32</posx>
+            <posy>80</posy>
+            <width>320</width>
+            <height>48</height>
+            <align>left</align>
+            <aligny>center</aligny>
+            <textoffsetx>20</textoffsetx>
+            <textcolor>white</textcolor>
+            <label>Go!</label>
+            <onclick lang="python">
+<![CDATA[
+import os
+import time
+
+button = mc.GetWindow($(window/main)).GetButton($(button/go))
+button.SetEnabled(False)
+
+label = mc.GetWindow($(window/main)).GetLabel($(label/hello-world))
+
+os.system("flvstreamer -r rtmp://fl11.c91005.cdn.qbrick.com/91005/_definst_/kluster/20110109/1155175-0901RAPPORT1800-PLAY-mp4-c-v1.mp4 > /tmp/video.mp4 &")
+for i in range(5, 0, -1): # FIXME: should wait until X % is downloaded
+    label.SetLabel("Buffering... (%d)" % (i))
+    time.sleep(1)
+label.SetLabel("Launching player...")
+
+item = mc.ListItem(mc.ListItem.MEDIA_VIDEO_CLIP)
+item.SetPath("http://localhost:8000/video.mp4") # FIXME: update IP and port
+player = mc.GetPlayer()
+player.Play(item)
+
+time.sleep(10)
+mc.ShowDialogNotification("Video fully downloaded (not really)") # FIXME: do not tell lies
+]]>
+            </onclick>
         </control>
     </controls>
 </window>
