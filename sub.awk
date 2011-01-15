@@ -6,17 +6,22 @@ BEGIN {
     i = 0;
 
     # extend this array with new patterns/replacements
-    a[i++] = "version:0.1"
+    a[i++] = "host:192.168.0.103"
+    a[i++] = "port:9001"
+    a[i++] = "repos/host:192.168.0.103"
+    a[i++] = "repos/port:9001"
+    a[i++] = "version:0.2"
     a[i++] = "package:net.kongstadbrun.svtplay"
     a[i++] = "tag/test-app:<test-app>true</test-app>"
+    #a[i++] = "tag/test-app:"
     a[i++] = "window/main:" id_window++
     a[i++] = "label/hello-world:" id_control++
     a[i++] = "button/go:" id_control++
+    a[i++] = "list/rss:" id_control++
+    a[i++] = "label/details-title:" id_control++
+    a[i++] = "label/details-description:" id_control++
 
-    # sanity check:
-    #   * key duplicates are not allowed and will throw an error
-    #   * value duplicates are not illegal per se, but likely to
-    #       be a copy/paste error, so we throw an error on those as well
+    # sanity check: key duplicates are not allowed and will throw an error
     i = 0
     for (i in a) {
         split(a[i], tmp, ":")
@@ -25,13 +30,6 @@ BEGIN {
         for (j in keys) {
             if (k == keys[j]) {
                 print "error: duplicate key '" k "'" > "/dev/stderr"
-                print "i=" i " j=" j > "/dev/stderr"
-                exit 1
-            }
-        }
-        for (j in values) {
-            if (v == values[j]) {
-                print "error: duplicate value '" v "'" > "/dev/stderr"
                 print "i=" i " j=" j > "/dev/stderr"
                 exit 1
             }

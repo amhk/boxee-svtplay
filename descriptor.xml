@@ -4,6 +4,7 @@
     <name>SVT Play</name>
     <version>$(version)</version>
     <description>Stream video from SVT Play (http://svtplay.se)</description>
+	<repository>http://$(repos/host):$(repos/port)</repository>
     <thumb>http://FIXME/thumb.png</thumb>
     <media>video</media>
     <copyright>FIXME</copyright>

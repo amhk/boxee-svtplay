@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <window type="window" id="$(window/main)">
-    <defaultcontrol always="true">$(button/go)</defaultcontrol>
+    <defaultcontrol always="true">$(list/rss)</defaultcontrol>
     <controls>
         <include>Common_Background</include>
         <include>Common_Status</include>
@@ -23,6 +23,13 @@
             <textcolor>white</textcolor>
             <label>Go!</label>
             <onclick lang="python">
+<![CDATA[
+item = mc.ListItem(mc.ListItem.MEDIA_VIDEO_CLIP)
+item.SetPath("http://$(host):$(port)/video?id=2")
+player = mc.GetPlayer()
+player.Play(item)
+]]>
+				<!--
 <![CDATA[
 import os
 import time
@@ -55,7 +62,88 @@ player.Pause()
 print "seeking to ", offset
 player.SeekTime(offset)
 ]]>
+-->
             </onclick>
         </control>
+		<control type="list" id="$(list/rss)">
+			<!-- <content type="url" url="http://svt.se/rss/nyheter/inrikes/"/> -->
+			<content type="url" url="http://$(host):$(port)/rss">
+				<onclick lang="python">
+<![CDATA[
+mc.ShowDialogNotification("user clicked an item, now do something")
+
+list = mc.GetActiveWindow().GetList($(list/rss))
+index = list.GetFocusedItem()
+item = list.GetItem(index)
+
+path = item.GetPath()
+if path.startswith("http://$(host):$(port)/video?"):
+	pitem = mc.ListItem(mc.ListItem.MEDIA_VIDEO_CLIP)
+	pitem.SetPath(path)
+	player = mc.GetPlayer()
+	player.Play(pitem)
+
+print "boxee:property/custom:state", item.GetProperty("state")
+]]>
+				</onclick>
+				<!--
+				<onfocus lang="python">
+<![CDATA[
+print "item got focus, time to update details panel"
+list = mc.GetActiveWindow().GetList($(list/rss))
+index = list.GetFocusedItem()
+item = list.GetItem(index)
+details_title = mc.GetActiveWindow().GetLabel($(label/details-title))
+details_title.SetLabel(item.GetLabel())
+details_descr = mc.GetActiveWindow().GetLabel($(label/details-description))
+details_descr.SetLabel(item.GetDescription())
+]]>
+				</onfocus>
+				-->
+			</content>
+			<visible>true</visible>
+			<posx>340</posx>
+			<posy>32</posy>
+			<width>600</width>
+			<height>200</height>
+			<orientation>vertical</orientation>
+			<itemlayout width="600" height="32">
+				<control type="label">
+					<posx>0</posx>
+					<posy>0</posy>
+					<width>600</width>
+					<height>32</height>
+					<align>left</align>
+					<aligny>center</aligny>
+					<textcolor>grey</textcolor>
+					<label>$INFO[ListItem.Label]</label>
+				</control>
+			</itemlayout>
+			<focusedlayout width="600" height="32">
+				<control type="label">
+					<posx>0</posx>
+					<posy>0</posy>
+					<width>600</width>
+					<height>32</height>
+					<align>left</align>
+					<aligny>center</aligny>
+					<textcolor>white</textcolor>
+					<label>$INFO[ListItem.Label]</label>
+				</control>
+			</focusedlayout>
+		</control>
+
+		<!-- selected item details panel -->
+		<!-- <control type="group"> -->
+			<control type="label">
+				<posx>800</posx>
+				<posy>64</posy>
+				<width>320</width>
+				<height>320</height>
+				<textcolor>grey</textcolor>
+				<label>[B]$INFO[Container($(list/rss)).ListItem.Label][/B][CR][CR]$INFO[Container($(list/rss)).ListItem.property(description)]</label>
+				<wrapmultiline>true</wrapmultiline>
+			</control>
+			<!-- </control> -->
     </controls>
 </window>
