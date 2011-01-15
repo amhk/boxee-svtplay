@@ -13,5 +13,5 @@
     <platform>all</platform>
     <minversion>0.9.11</minversion>
     <startWindow>$(window/main)</startWindow>
-    $(tag/test-app)
+    <test-app>true</test-app>
 </app>

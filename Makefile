@@ -1,21 +1,17 @@
-appname := net.kongstadbrun.svtplay
-out := $(appname)
-xmls := $(out)/descriptor.xml $(out)/skin/Boxee\ Skin\ NG/720p/main.xml
+boxee-bin := /opt/boxee/run-boxee-desktop
 
-SHELL := bash
+all: debug
 
-$(out)/%.xml: %.xml sub.awk
-	@mkdir -p $(out)
-	@awk -f sub.awk "$<" | tidy -xml -utf8 -qi -w 80 -o "$@" && \
-		test $${PIPESTATUS[0]} -eq 0 || (rm -f "$@" && false)
+debug: client
+	$(boxee-bin)
 
+.PHONY: client
+client:
+	$(MAKE) -C client
 
-$(out)/skin/Boxee\ Skin\ NG/720p/%.xml: %.xml sub.awk
-	@mkdir -p $(out)/skin/Boxee\ Skin\ NG/720p
-	@awk -f sub.awk "$<" | tidy -xml -utf8 -qi -w 80 -o "$@" && \
-		test $${PIPESTATUS[0]} -eq 0 || (rm -f "$@" && false)
-
-all: $(xmls)
+.PHONY: repository
+repository: client
+	$(MAKE) -C repository
 
 clean:
-	rm -rf $(out)
+	$(RM) -r out

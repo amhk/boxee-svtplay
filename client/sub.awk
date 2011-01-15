@@ -9,11 +9,9 @@ BEGIN {
     a[i++] = "host:192.168.0.103"
     a[i++] = "port:9001"
     a[i++] = "repos/host:192.168.0.103"
-    a[i++] = "repos/port:9001"
-    a[i++] = "version:0.2"
+    a[i++] = "repos/port:9000"
+    a[i++] = "version:0.5"
     a[i++] = "package:net.kongstadbrun.svtplay"
-    a[i++] = "tag/test-app:<test-app>true</test-app>"
-    #a[i++] = "tag/test-app:"
     a[i++] = "window/main:" id_window++
     a[i++] = "label/hello-world:" id_control++
     a[i++] = "button/go:" id_control++
