@@ -1,6 +1,7 @@
 appname := net.kongstadbrun.svtplay
 out := ../out/$(appname)
 xmls := $(out)/descriptor.xml $(out)/skin/Boxee\ Skin\ NG/720p/main.xml
+meta := $(out)/README $(out)/LICENSE $(out)/AUTHORS
 
 SHELL := bash
 
@@ -17,7 +18,22 @@ $(out)/skin/Boxee\ Skin\ NG/720p/%.xml: %.xml sub.awk
 	@awk -f sub.awk "$<" | tidy -xml -utf8 -qi -w 80 -o "$@" && \
 		test $${PIPESTATUS[0]} -eq 0 || (rm -f "$@" && false)
 
-all: $(xmls)
+all: $(xmls) $(meta)
+
+$(out)/README: ../README
+	@echo "[APP] $<"
+	@mkdir -p $(out)
+	@cp $< $@
+
+$(out)/LICENSE: ../LICENSE
+	@echo "[APP] $<"
+	@mkdir -p $(out)
+	@cp $< $@
+
+$(out)/AUTHORS: ../AUTHORS
+	@echo "[APP] $<"
+	@mkdir -p $(out)
+	@cp $< $@
 
 clean:
 	rm -rf $(out)
