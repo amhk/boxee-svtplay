@@ -19,10 +19,10 @@ BEGIN {
     a[i++] = "label/details-description:" id_control++
 
     if (debug) {
-        a[i++] = "tag/id:<id>net.kongstadbrun.svtplay-debug</id>"
+        a[i++] = "tag/id:<id>com.github.amhk.boxee-svtplay-debug</id>"
         a[i++] = "tag/test-app:<test-app>true</test-app>"
     } else {
-        a[i++] = "tag/id:<id>net.kongstadbrun.svtplay</id>"
+        a[i++] = "tag/id:<id>com.github.amhk.boxee-svtplay</id>"
         a[i++] = "tag/test-app:"
     }
 

@@ -10,7 +10,7 @@ rm -rf $out/download $out/index.xml
 mkdir $out/download
 
 echo "<apps>" >> $tmp/index.html
-for app in $(find $out -mindepth 0 -maxdepth 1 -type d -name 'net.kongstadbrun.*' | cut -d/ -f3-); do
+for app in $(find $out -mindepth 0 -maxdepth 1 -type d -name 'com.github.amhk.*-debug' -prune -or -type d -name 'com.github.amhk.*' -print | cut -d/ -f3-); do
 	version=$(egrep '<version>' $out/$app/descriptor.xml | egrep -oe '[0-9]+\.[0-9]')
 	zip="$app-$version.zip"
     echo "[REPOS] $app, v $version -> $zip"

@@ -1,5 +1,5 @@
 <repository>
-	<id>net.kongstadbrun</id>
+	<id>com.github.amhk</id>
 	<url>http://192.168.0.103:9000</url>
 	<name>Kongstad's debug repository</name>
     <thumb>http://FIXME/none.png</thumb>

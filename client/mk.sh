@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-appname=net.kongstadbrun.svtplay
+appname=com.github.amhk.boxee-svtplay
 out=../out/$appname
 
 function target-xml()
