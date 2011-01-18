@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <app>
-    <id>$(package)</id>
+    $(tag/id)
     <name>SVT Play</name>
     <version>$(version)</version>
     <description>Stream video from SVT Play (http://svtplay.se)</description>
@@ -13,5 +13,5 @@
     <platform>all</platform>
     <minversion>0.9.11</minversion>
     <startWindow>$(window/main)</startWindow>
-    <test-app>true</test-app>
+    $(tag/test-app)
 </app>

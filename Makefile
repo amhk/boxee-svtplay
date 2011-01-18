@@ -2,15 +2,13 @@ boxee-bin := /opt/boxee/run-boxee-desktop
 
 all: debug
 
-debug: client
+debug:
+	$(MAKE) -C client debug
 	$(boxee-bin)
 
-.PHONY: client
-client:
-	$(MAKE) -C client
-
 .PHONY: repository
-repository: client
+repository:
+	$(MAKE) -C client release
 	$(MAKE) -C repository
 
 clean:

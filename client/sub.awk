@@ -11,13 +11,20 @@ BEGIN {
     a[i++] = "repos/host:192.168.0.103"
     a[i++] = "repos/port:9000"
     a[i++] = "version:0.5"
-    a[i++] = "package:net.kongstadbrun.svtplay"
     a[i++] = "window/main:" id_window++
     a[i++] = "label/hello-world:" id_control++
     a[i++] = "button/go:" id_control++
     a[i++] = "list/rss:" id_control++
     a[i++] = "label/details-title:" id_control++
     a[i++] = "label/details-description:" id_control++
+
+    if (debug) {
+        a[i++] = "tag/id:<id>net.kongstadbrun.svtplay-debug</id>"
+        a[i++] = "tag/test-app:<test-app>true</test-app>"
+    } else {
+        a[i++] = "tag/id:<id>net.kongstadbrun.svtplay</id>"
+        a[i++] = "tag/test-app:"
+    }
 
     # sanity check: key duplicates are not allowed and will throw an error
     i = 0
