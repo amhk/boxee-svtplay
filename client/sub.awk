@@ -15,6 +15,7 @@ BEGIN {
     a[i++] = "label/hello-world:" id_control++
     a[i++] = "button/go:" id_control++
     a[i++] = "list/rss:" id_control++
+    a[i++] = "list/download-queue:" id_control++
     a[i++] = "label/details-title:" id_control++
     a[i++] = "label/details-description:" id_control++
 

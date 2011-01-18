@@ -16,7 +16,16 @@ function target-xml()
     fi
 }
 
-function target-meta()
+function target-python()
+{
+    local src="$1"
+    local dest=$out/"$2"
+
+    echo "[APP python] $dest"
+    awk $awkflags -f sub.awk "$src" > "$dest"
+}
+
+function target-cp()
 {
     local src="$1"
     local dest=$out/"$2"
@@ -43,7 +52,8 @@ else
     mkdir -p $out/'skin/Boxee Skin NG/720p'
     target-xml descriptor.xml descriptor.xml
     target-xml main.xml 'skin/Boxee Skin NG/720p/main.xml'
-    target-meta ../AUTHORS AUTHORS
-    target-meta ../LICENSE LICENSE
-    target-meta ../README README
+    target-python svtplay.py svtplay.py
+    target-cp ../AUTHORS AUTHORS
+    target-cp ../LICENSE LICENSE
+    target-cp ../README README
 fi

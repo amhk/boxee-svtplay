@@ -3,9 +3,13 @@ import BaseHTTPServer
 import os
 import shutil
 
-#HOST = "localhost"
-HOST = "192.168.0.103"
-PORT = 9001
+import config
+import DownloadQueue
+
+HOST = config.get("host")
+PORT = config.get("port")
+
+queue = DownloadQueue.DownloadQueue()
 
 class CGIReply:
 	def __init__(self, code, mime, data):
@@ -52,9 +56,20 @@ class CGI:
 					"<xml>file not found</xml>")
 
 	def do_status(self, argv):
+		rss = \
+"""<?xml version="1.0" encoding="UTF-8"?>
+<status>
+	<queue>"""
+		for item in queue.asList():
+			rss += "<item>" + item + "</item>\n"
+		rss += \
+"""
+	</queue>
+</status>
+"""
 		reply = CGIReply(200,
 				"application/xml",
-				"<xml>status<version>foo</version></xml>")
+				rss)
 		return reply
 
 	def do_rss(self, argv):
@@ -140,6 +155,7 @@ class CGI:
 			return reply
 
 if __name__ == "__main__":
+	print "server:", HOST, PORT
 	httpServer = BaseHTTPServer.HTTPServer((HOST, PORT), HTTPHandler)
 	httpServer.serve_forever()
 	httpServer.server_close()

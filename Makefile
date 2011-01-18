@@ -13,3 +13,4 @@ repository:
 
 clean:
 	$(RM) -r out
+	$(MAKE) -C server clean

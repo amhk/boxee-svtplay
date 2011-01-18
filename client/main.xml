@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <window type="window" id="$(window/main)">
+	<onload lang="python">
+<![CDATA[
+import svtplay
+
+svtplay.RefreshDownloadQueue()
+]]>
+	</onload>
     <defaultcontrol always="true">$(list/rss)</defaultcontrol>
     <controls>
         <include>Common_Background</include>
@@ -28,6 +35,8 @@ item = mc.ListItem(mc.ListItem.MEDIA_VIDEO_CLIP)
 item.SetPath("http://$(host):$(port)/video?id=2")
 player = mc.GetPlayer()
 player.Play(item)
+
+svtplay.foo()
 ]]>
 				<!--
 <![CDATA[
@@ -65,6 +74,40 @@ player.SeekTime(offset)
 -->
             </onclick>
         </control>
+
+        <control type="list" id="$(list/download-queue)">
+            <posx>32</posx>
+            <posy>128</posy>
+            <width>320</width>
+            <height>240</height>
+
+			<itemlayout width="320" height="32">
+				<control type="label">
+					<posx>0</posx>
+					<posy>0</posy>
+					<width>320</width>
+					<height>32</height>
+					<align>left</align>
+					<aligny>center</aligny>
+					<textcolor>grey</textcolor>
+					<label>$INFO[ListItem.Label]</label>
+				</control>
+			</itemlayout>
+
+			<focusedlayout width="320" height="32">
+				<control type="label">
+					<posx>0</posx>
+					<posy>0</posy>
+					<width>320</width>
+					<height>32</height>
+					<align>left</align>
+					<aligny>center</aligny>
+					<textcolor>white</textcolor>
+					<label>$INFO[ListItem.Label]</label>
+				</control>
+			</focusedlayout>
+        </control>
+
 		<control type="list" id="$(list/rss)">
 			<!-- <content type="url" url="http://svt.se/rss/nyheter/inrikes/"/> -->
 			<content type="url" url="http://$(host):$(port)/rss">
