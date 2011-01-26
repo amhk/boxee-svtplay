@@ -53,6 +53,7 @@ else
     target-xml descriptor.xml descriptor.xml
     target-xml main.xml 'skin/Boxee Skin NG/720p/main.xml'
     target-python svtplay.py svtplay.py
+    target-python boxee.py boxee.py
     target-cp ../AUTHORS AUTHORS
     target-cp ../LICENSE LICENSE
     target-cp ../README README

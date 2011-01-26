@@ -6,18 +6,15 @@ BEGIN {
     i = 0;
 
     # extend this array with new patterns/replacements
+    # FIXME: remove obsolete patterns
     a[i++] = "host:192.168.0.103"
     a[i++] = "port:9001"
     a[i++] = "repos/host:192.168.0.103"
-    a[i++] = "repos/port:9000"
-    a[i++] = "version:0.5"
+    a[i++] = "repos/port:9002"
+    a[i++] = "version:0.7"
     a[i++] = "window/main:" id_window++
     a[i++] = "label/hello-world:" id_control++
-    a[i++] = "button/go:" id_control++
-    a[i++] = "list/rss:" id_control++
-    a[i++] = "list/download-queue:" id_control++
-    a[i++] = "label/details-title:" id_control++
-    a[i++] = "label/details-description:" id_control++
+    a[i++] = "list/main:" id_control++
 
     if (debug) {
         a[i++] = "tag/id:<id>com.github.amhk.boxee-svtplay-debug</id>"

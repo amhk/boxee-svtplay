@@ -10,13 +10,55 @@ DEVELOPER NOTES
 
 (This section is used as a scratch pad and should be removed one day.)
 
-List of SVT Play RSS feeds
-http://svt.se/svt/jsp/Crosslink.jsp?d=104149&a=2027658
+http://xml.svtplay.se/v1/title/search/96238&q=lilla
+-> several <item>, eg
+	<item svtplay:type="title">
+		<title>Lilla Aktuellt</title>
+		<link>http://svtplay.se/t/102671/lilla_aktuellt</link>
+		<description>SVT:s nyheter för barn och unga. Se det senaste från Sverige och världen.</description>
+		<pubDate>Wed, 21 Jan 2009 10:17:58 GMT</pubDate>
+		<author>svtplay@svt.se (SVT Play)</author>
+		<guid isPermaLink="false">http://xml.svtplay.se/v1/titles/102671</guid>
+		<svtplay:category>96240</svtplay:category>
+		<svtplay:titleId>102671</svtplay:titleId>
+		<svtplay:titleUrl>http://svt.se/2.62895/hem</svtplay:titleUrl>
+		<svtplay:clips svtplay:isLeaf="false">102673</svtplay:clips>
+		<svtplay:broadcasts svtplay:isLeaf="false">102672</svtplay:broadcasts>
+		<svtplay:teaserLists>123767</svtplay:teaserLists>
+		<svtplay:logotype svtplay:width="170" svtplay:height="30">http://material.svtplay.se/content/2/c6/10/26/71/lillaaktuellt_ny_l.gif</svtplay:logotype>
+		<media:thumbnail url="http://material.svtplay.se/content/2/c6/10/26/71/lillaaktuellt_ny2_a.jpg" width="168" height="95" />
+	</item>
 
-Icons: use RSS feel thumbnails, overlay status icon (local, downloading,
-remote)
+important items:
+title: general show title
+description: general show information
+svtplay:category: Barn
+svtplay:titleId: general show identifier
+svtplay:titleUrl: show's corresponding www page (less relevant for Boxee)
+svtplay:clips:
+svtplay:broadcasts: ?
+svtplay:teaserLists: ?
+media:thumbnail: small thumbnail
 
-Actions: download, cancel ongoing download, play local item, delete local item
+http://svtplay.se/t/<svtplay:clips>: main entry page for show, eg http://svtplay.se/t/102671
 
+http://xml.svtplay.se/v1/titles/<svtplay:clips>: xml information on show, eg http://xml.svtplay.se/v1/titles/102671
+
+SVTPlay's naming convention:
+title: Lilla Aktuellt
+
+
+Given a show's ID (svtplay:titleId, possible to extract from A-Ö listing), how to find all related content (all shows, all extra clips (preferably categorized))?
+
+lilla aktuellt/extramaterial
+http://svtplay.se/t/102671/lilla_aktuellt?cb,,1,f,-1/pb,a1364150,1,f,-1/pl,v,,2283368/sb,k102674,1,f,
+
+note: below two queries should list &start=x and parse <opensearch:itemsPerPage> (totalResults, startIndex) tags. will unfortunately include episodes from other shows which mention <query> in eg their description
+
+find all full length shows for På spåret
+xml.svtplay.se/v1/video/search/96238&expression=full&q=på%20spåret
+
+find all extras for På spåret
+xml.svtplay.se/v1/video/search/96238&expression=sample&q=på%20spåret
 
 vi: set tw=80

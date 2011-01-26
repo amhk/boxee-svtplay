@@ -1,4 +1,4 @@
 #!/bin/bash
 set -e
 
-(cd ../out && python -m SimpleHTTPServer 9000)
+(cd ../out && python -m SimpleHTTPServer 9002)

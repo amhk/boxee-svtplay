@@ -4,10 +4,10 @@
 <![CDATA[
 import svtplay
 
-svtplay.RefreshDownloadQueue()
+svtplay.OnLoad()
 ]]>
 	</onload>
-    <defaultcontrol always="true">$(list/rss)</defaultcontrol>
+    <defaultcontrol always="true">$(list/main)</defaultcontrol>
     <controls>
         <include>Common_Background</include>
         <include>Common_Status</include>
@@ -19,155 +19,61 @@ svtplay.RefreshDownloadQueue()
             <textcolor>grey</textcolor>
             <label>Hello world (version $(version))</label>
         </control>
-        <control type="button" id="$(button/go)">
-            <posx>32</posx>
-            <posy>80</posy>
-            <width>320</width>
-            <height>48</height>
-            <align>left</align>
-            <aligny>center</aligny>
-            <textoffsetx>20</textoffsetx>
-            <textcolor>white</textcolor>
-            <label>Go!</label>
-            <onclick lang="python">
-<![CDATA[
-item = mc.ListItem(mc.ListItem.MEDIA_VIDEO_CLIP)
-item.SetPath("http://$(host):$(port)/video?id=2")
-player = mc.GetPlayer()
-player.Play(item)
 
-svtplay.foo()
-]]>
-				<!--
-<![CDATA[
-import os
-import time
-
-button = mc.GetWindow($(window/main)).GetButton($(button/go))
-button.SetEnabled(False)
-
-label = mc.GetWindow($(window/main)).GetLabel($(label/hello-world))
-
-os.system("flvstreamer -r rtmp://fl11.c91005.cdn.qbrick.com/91005/_definst_/kluster/20110109/1155175-0901RAPPORT1800-PLAY-mp4-c-v1.mp4 > /tmp/video.mp4 &")
-for i in range(5, 0, -1): # FIXME: should wait until X % is downloaded
-    label.SetLabel("Buffering... (%d)" % (i))
-    time.sleep(1)
-label.SetLabel("Launching player...")
-
-item = mc.ListItem(mc.ListItem.MEDIA_VIDEO_CLIP)
-item.SetPath("http://localhost:8000/video.mp4") # FIXME: update IP and port
-player = mc.GetPlayer()
-player.Play(item)
-
-time.sleep(20)
-mc.ShowDialogNotification("Video fully downloaded (not really)") # FIXME: do not tell lies
-# the video is not a stream, and so must be reloaded once completely downloaded to server, or playback will finalize prematurely
-offset = player.GetTime()
-player.Pause()
-player.Play(item)
-# really should wait for EVENT_STARTED instead of sleeping
-time.sleep(2)
-player.Pause()
-print "seeking to ", offset
-player.SeekTime(offset)
-]]>
--->
-            </onclick>
-        </control>
-
-        <control type="list" id="$(list/download-queue)">
-            <posx>32</posx>
-            <posy>128</posy>
-            <width>320</width>
-            <height>240</height>
-
-			<itemlayout width="320" height="32">
-				<control type="label">
-					<posx>0</posx>
-					<posy>0</posy>
-					<width>320</width>
-					<height>32</height>
-					<align>left</align>
-					<aligny>center</aligny>
-					<textcolor>grey</textcolor>
-					<label>$INFO[ListItem.Label]</label>
-				</control>
-			</itemlayout>
-
-			<focusedlayout width="320" height="32">
-				<control type="label">
-					<posx>0</posx>
-					<posy>0</posy>
-					<width>320</width>
-					<height>32</height>
-					<align>left</align>
-					<aligny>center</aligny>
-					<textcolor>white</textcolor>
-					<label>$INFO[ListItem.Label]</label>
-				</control>
-			</focusedlayout>
-        </control>
-
-		<control type="list" id="$(list/rss)">
-			<!-- <content type="url" url="http://svt.se/rss/nyheter/inrikes/"/> -->
-			<content type="url" url="http://$(host):$(port)/rss">
+		<control type="list" id="$(list/main)">
+            <content type="action">
 				<onclick lang="python">
 <![CDATA[
-mc.ShowDialogNotification("user clicked an item, now do something")
-
-list = mc.GetActiveWindow().GetList($(list/rss))
+list = mc.GetActiveWindow().GetList($(list/main))
 index = list.GetFocusedItem()
-item = list.GetItem(index)
-
-path = item.GetPath()
-if path.startswith("http://$(host):$(port)/video?"):
-	pitem = mc.ListItem(mc.ListItem.MEDIA_VIDEO_CLIP)
-	pitem.SetPath(path)
-	player = mc.GetPlayer()
-	player.Play(pitem)
-
-print "boxee:property/custom:state", item.GetProperty("state")
+svtplay.OnClick(index)
 ]]>
 				</onclick>
-				<!--
-				<onfocus lang="python">
-<![CDATA[
-print "item got focus, time to update details panel"
-list = mc.GetActiveWindow().GetList($(list/rss))
-index = list.GetFocusedItem()
-item = list.GetItem(index)
-details_title = mc.GetActiveWindow().GetLabel($(label/details-title))
-details_title.SetLabel(item.GetLabel())
-details_descr = mc.GetActiveWindow().GetLabel($(label/details-description))
-details_descr.SetLabel(item.GetDescription())
-]]>
-				</onfocus>
-				-->
 			</content>
 			<visible>true</visible>
 			<posx>340</posx>
-			<posy>32</posy>
+			<posy>10</posy>
 			<width>600</width>
-			<height>200</height>
+			<height>700</height>
 			<orientation>vertical</orientation>
-			<itemlayout width="600" height="32">
+			<itemlayout width="600" height="100">
+                <control type="image">
+                    <posx>0</posx>
+                    <posy>0</posy>
+                    <width>168</width>
+                    <height>95</height>
+                    <align>left</align>
+                    <aligny>center</aligny>
+                    <aspectratio align="left">keep</aspectratio>
+                    <texture>$INFO[ListItem.Thumb]</texture>
+                </control>
 				<control type="label">
-					<posx>0</posx>
+					<posx>175</posx>
 					<posy>0</posy>
-					<width>600</width>
-					<height>32</height>
+					<width>425</width>
+					<height>100</height>
 					<align>left</align>
 					<aligny>center</aligny>
 					<textcolor>grey</textcolor>
 					<label>$INFO[ListItem.Label]</label>
 				</control>
 			</itemlayout>
-			<focusedlayout width="600" height="32">
+			<focusedlayout width="600" height="100">
+                <control type="image">
+                    <posx>0</posx>
+                    <posy>0</posy>
+                    <width>168</width>
+                    <height>95</height>
+                    <align>left</align>
+                    <aligny>center</aligny>
+                    <aspectratio align="left">keep</aspectratio>
+                    <texture>$INFO[ListItem.Thumb]</texture>
+                </control>
 				<control type="label">
-					<posx>0</posx>
+					<posx>175</posx>
 					<posy>0</posy>
-					<width>600</width>
-					<height>32</height>
+					<width>425</width>
+					<height>100</height>
 					<align>left</align>
 					<aligny>center</aligny>
 					<textcolor>white</textcolor>
@@ -184,7 +90,7 @@ details_descr.SetLabel(item.GetDescription())
 				<width>320</width>
 				<height>320</height>
 				<textcolor>grey</textcolor>
-				<label>[B]$INFO[Container($(list/rss)).ListItem.Label][/B][CR][CR]$INFO[Container($(list/rss)).ListItem.property(description)]</label>
+                <label>[B]$INFO[Container($(list/main)).ListItem.Label][/B][CR][CR]$INFO[Container($(list/main)).ListItem.property(description)]</label>
 				<wrapmultiline>true</wrapmultiline>
 			</control>
 			<!-- </control> -->
