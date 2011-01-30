@@ -13,8 +13,10 @@ BEGIN {
     a[i++] = "repos/port:9002"
     a[i++] = "version:0.7"
     a[i++] = "window/main:" id_window++
+    a[i++] = "window/title:" id_window++
     a[i++] = "label/hello-world:" id_control++
     a[i++] = "list/main:" id_control++
+    a[i++] = "list/title:" id_control++
 
     if (debug) {
         a[i++] = "tag/id:<id>com.github.amhk.boxee-svtplay-debug</id>"

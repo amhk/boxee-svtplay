@@ -1,94 +1,117 @@
 #!/usr/bin/python
-import xml.dom.minidom
+import threading
 import urllib2
-import sys
+import xml.dom.minidom
 
 try:
 	from boxee import Play, SetListItems
 except:
 	from pc import Play, SetListItems
 
-class Item:
-	def __init__(self, title, type, url, description, thumbnail):
-		self.title = title
-		self.type = type
+class DownloadThread(threading.Thread):
+	def __init__(self, url, offset = None):
+		if offset == None:
+			self.url = url
+		else:
+			self.url = url + "?start=" + str(offset)
+		self.data = None
+		threading.Thread.__init__(self)
+
+	def run(self):
+		request = urllib2.Request(self.url)
+		response = urllib2.urlopen(request)
+		self.data = response.read()
+		response.close()
+
+class WorkerThread(threading.Thread):
+	TYPE_MENU = 0
+
+	def __init__(self, url, type):
 		self.url = url
-		self.description = description
-		self.thumbnail = thumbnail
+		self.type = type
+		self.items = []
+		threading.Thread.__init__(self)
 
-	def __str__(self):
-		return "{ title=%s type=%s url=%s thumbnail=%s }" % (self.title, self.type, self.url, self.thumbnail)
+	def parseXml(self, root):
+		items = []
+		if self.type == self.TYPE_MENU:
+			for node in root.getElementsByTagName("item"):
+				i = {}
+				i['id'] = node.getElementsByTagName("svtplay:titleId")[0].childNodes[0].data.encode("utf-8")
+				i['title'] = node.getElementsByTagName("title")[0].childNodes[0].data.encode("utf-8")
+				i['thumbnail'] = node.getElementsByTagName("media:thumbnail")[0].getAttribute("url").encode("utf-8")
+				items.append(i)
+		else:
+			raise Exception("unexpected type")
+		return items
 
-class State:
+	def run(self):
+		firstThread = DownloadThread(self.url)
+		firstThread.start()
+		firstThread.join()
+
+		root = xml.dom.minidom.parseString(firstThread.data)
+		total_results = int(root.getElementsByTagName("opensearch:totalResults")[0].childNodes[0].data)
+		self.items += self.parseXml(root)
+		n = len(self.items)
+
+		if n < total_results:
+			threads = []
+			for i in range(n + 1, total_results, n):
+				threads.append(DownloadThread(self.url, i))
+
+			for t in threads:
+				t.start()
+
+			for t in threads:
+				t.join()
+				root = xml.dom.minidom.parseString(t.data)
+				self.items += self.parseXml(root)
+
+class SVTPlay:
+	STATE_MAIN = 0
+	STATE_TITLE = 1
+
 	def __init__(self):
-		self.url = None
-		self.offset = None
-		#self.totalItems = None
-		#self.itemsSoFar = None
+		self.state = self.STATE_MAIN
+		self.items = []
 
-_list = []
-_state = State()
+	def onLoad(self):
+		print "SVTPlay.onLoad"
+
+		if self.state == self.STATE_MAIN:
+			del self.items[:]
+			wt = WorkerThread("http://xml.svtplay.se/v1/title/list/96238", WorkerThread.TYPE_MENU)
+			wt.start()
+			wt.join()
+			self.items = wt.items
+			SetListItems(self.items)
+		elif self.state == self.STATE_TITLE:
+			# FIXME: should start two workerthreads, to download search results
+			# FIXME: then single out items with expected title and call SetListItems
+			pass
+		else:
+			raise Exception("unexpected state")
+
+	def onClick(self, index):
+		print "SVTPlay.onClick", index
+
+		if self.state == self.STATE_MAIN:
+			# FIXME: should set state to STATE_TITLE, call ActivateWindow, wait for OnLoad callback
+
+			i = self.items[index]
+			# FIXME: should consult self.state; for now, do the easiest thing
+			url = "http://www.svtplay.se/t/" + i['id']
+			Play(url)
+		else:
+			raise Exception("unexpected state")
+
+_svtplay = SVTPlay()
 
 def OnLoad():
-	print "svtplay.OnLoad"
-
-	_load_menu("http://xml.svtplay.se/v1/title/list/96238")
+	global _svtplay
+	_svtplay.onLoad()
 
 def OnClick(index):
-	global _list
-	print "svtplay.OnClick", _list[index]
-
-	item = _list[index]
-
-	if item.type == "video":
-		Play(item.url)
-	else:
-		raise Exception("unknown item type %s" % item.type)
-
-def OnRight():
-	print "svtplay.OnRight"
-
-	if _state.offset != None:
-		offset = int(_state.offset)
-	else:
-		offset = 1
-	_load_menu(_state.url, offset + 20)
-
-def _load_xml(url):
-	print "load_xml", url
-	request = urllib2.Request(url)
-	response = urllib2.urlopen(request)
-	data = response.read()
-	response.close()
-
-	return xml.dom.minidom.parseString(data)
-
-def _xml_data(node, tag, namespace = None):
-	try:
-		if namespace == None:
-			return node.getElementsByTagName(tag)[0].childNodes[0].data.encode("utf-8")
-		else:
-			return node.getElementsByTagNameNS(namespace, tag)[0].childNodes[0].data.encode("utf-8")
-	except:
-		return ""
-
-def _load_menu(url, offset = None):
-	global _list, _state
-
-	_state.url = url
-	_state.offset = offset
-	if offset != None:
-		url += "&start=" + str(offset)
-
-	del _list[:]
-	root = _load_xml(url)
-	#_state.totalItems = int(_xml_data(root, "opensearch:totalResults"))
-	#_state.itemsSoFar = int(_xml_data(root, "opensearch:startIndex")) - 1
-	for node in root.getElementsByTagName("item"):
-		title = _xml_data(node, "title")
-		url = _xml_data(node, "link")
-		description = _xml_data(node, "description")
-		thumbnail = node.getElementsByTagName("media:thumbnail")[0].getAttribute("url").encode("utf-8")
-		_list.append(Item(title, "video", url, description, thumbnail))
-
-	SetListItems(_list)
+	global _svtplay
+	_svtplay.onClick(index)

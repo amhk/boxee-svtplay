@@ -50,10 +50,13 @@ if [[ $clean -eq 1 ]]; then
     rm -rf $out-debug
 else
     mkdir -p $out/'skin/Boxee Skin NG/720p'
+    mkdir -p $out/'skin/Boxee Skin NG/media'
     target-xml descriptor.xml descriptor.xml
     target-xml main.xml 'skin/Boxee Skin NG/720p/main.xml'
+    #target-xml title.xml 'skin/Boxee Skin NG/720p/title.xml'
     target-python svtplay.py svtplay.py
     target-python boxee.py boxee.py
+    target-cp focused-item.png 'skin/Boxee Skin NG/media/focused-item.png'
     target-cp ../AUTHORS AUTHORS
     target-cp ../LICENSE LICENSE
     target-cp ../README README
