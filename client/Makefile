@@ -8,3 +8,4 @@ debug:
 
 clean:
 	@./mk.sh -c
+	$(RM) *.pyc

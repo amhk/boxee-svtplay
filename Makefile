@@ -13,4 +13,5 @@ repository:
 
 clean:
 	$(RM) -r out
+	$(MAKE) -C client clean
 	$(MAKE) -C server clean
