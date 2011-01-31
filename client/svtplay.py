@@ -48,6 +48,10 @@ class WorkerThread(threading.Thread):
 				try:
 					i['guid'] = node.getElementsByTagName("guid")[0].childNodes[0].data.encode("utf-8")
 					i['title'] = node.getElementsByTagName("title")[0].childNodes[0].data.encode("utf-8")
+					try: # FIXME: this is too messy to stand, clean up!
+						i['showtitle'] = node.getElementsByTagName("svtplay:titleName")[0].childNodes[0].data.encode("utf-8")
+					except:
+						i['showtitle'] = ""
 					i['thumbnail'] = node.getElementsByTagName("media:thumbnail")[0].getAttribute("url").encode("utf-8")
 				except:
 					i['guid'] = "(error)"
@@ -106,8 +110,8 @@ class SVTPlay:
 			i = self.items[0]
 			del self.items[:]
 
-			q = i['title']
-			q = urllib.quote(q)
+			title = i['title']
+			q = urllib.quote(title)
 			url = "http://xml.svtplay.se/v1/search/96238&q=" + q
 
 			wt0 = WorkerThread(url + "&expression=full", WorkerThread.TYPE_MENU)
@@ -116,9 +120,15 @@ class SVTPlay:
 			wt1.start()
 			wt0.join()
 			wt1.join()
-			self.items = wt0.items
-			self.items += wt1.items
-			# FIXME: remove extra matches
+			tmp = wt0.items
+			tmp += wt1.items
+
+			print "list length is " + str(len(tmp))
+			for i in tmp:
+				print "comparing '" + title + "' and '" + i['showtitle'] + "'"
+				if i['showtitle'] == title:
+					self.items.append(i)
+			print "list length is " + str(len(self.items))
 			SetListItems(ID_LIST_TITLE, self.items)
 		else:
 			raise Exception("unexpected state")
