@@ -4,19 +4,27 @@ import sys
 
 import svtplay
 
+ID_LIST_MAIN = 0
+ID_LIST_TITLE = 1
+ID_WINDOW_TITLE = 2
+
 def Play(url):
 	print "pc.Play", url
 
 	os.system("gnome-www-browser %s" % url)
 
 
-def SetListItems(new_items):
+def SetListItems(list_id, new_items):
 	print "pc.SetListItems"
 
 	i = 0
 	for item in new_items:
 		print i, item
 		i += 1
+
+def ActivateWindow(win_id):
+	svtplay.OnUnLoad()
+	svtplay.OnLoad()
 
 def _get_user_input():
 	input = ""
@@ -34,8 +42,10 @@ def run():
 			continue
 
 		if input == "back":
-			# FIXME: svtplay.OnUnload?
-			return
+			svtplay.OnUnLoad()
+			svtplay.OnLoad()
+			continue
+
 		try:
 			svtplay.OnClick(int(input))
 		except TypeError as e:

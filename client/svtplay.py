@@ -1,27 +1,35 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 import threading
+import urllib # urllib2 in python 2.4 lacks quote function
 import urllib2
 import xml.dom.minidom
 
 try:
-	from boxee import Play, SetListItems
+	from boxee import Play, SetListItems, ActivateWindow
+	from boxee import ID_LIST_MAIN, ID_LIST_TITLE, ID_WINDOW_TITLE
 except:
-	from pc import Play, SetListItems
+	from pc import Play, SetListItems, ActivateWindow
+	from pc import ID_LIST_MAIN, ID_LIST_TITLE, ID_WINDOW_TITLE
 
 class DownloadThread(threading.Thread):
 	def __init__(self, url, offset = None):
 		if offset == None:
 			self.url = url
 		else:
-			self.url = url + "?start=" + str(offset)
+			self.url = url + "&start=" + str(offset)
 		self.data = None
 		threading.Thread.__init__(self)
 
 	def run(self):
-		request = urllib2.Request(self.url)
-		response = urllib2.urlopen(request)
-		self.data = response.read()
-		response.close()
+		try:
+			print "url:" + self.url
+			request = urllib2.Request(self.url)
+			response = urllib2.urlopen(request)
+			self.data = response.read()
+			response.close()
+		except:
+			print "http download failed, url=" + self.url
 
 class WorkerThread(threading.Thread):
 	TYPE_MENU = 0
@@ -37,9 +45,14 @@ class WorkerThread(threading.Thread):
 		if self.type == self.TYPE_MENU:
 			for node in root.getElementsByTagName("item"):
 				i = {}
-				i['id'] = node.getElementsByTagName("svtplay:titleId")[0].childNodes[0].data.encode("utf-8")
-				i['title'] = node.getElementsByTagName("title")[0].childNodes[0].data.encode("utf-8")
-				i['thumbnail'] = node.getElementsByTagName("media:thumbnail")[0].getAttribute("url").encode("utf-8")
+				try:
+					i['guid'] = node.getElementsByTagName("guid")[0].childNodes[0].data.encode("utf-8")
+					i['title'] = node.getElementsByTagName("title")[0].childNodes[0].data.encode("utf-8")
+					i['thumbnail'] = node.getElementsByTagName("media:thumbnail")[0].getAttribute("url").encode("utf-8")
+				except:
+					i['guid'] = "(error)"
+					i['title'] = "(error)"
+					i['thumbnail'] = "(error)"
 				items.append(i)
 		else:
 			raise Exception("unexpected type")
@@ -56,6 +69,8 @@ class WorkerThread(threading.Thread):
 		n = len(self.items)
 
 		if n < total_results:
+			# FIXME: should limit number of spawned threads and instead loop if
+			# necessary?
 			threads = []
 			for i in range(n + 1, total_results, n):
 				threads.append(DownloadThread(self.url, i))
@@ -71,6 +86,7 @@ class WorkerThread(threading.Thread):
 class SVTPlay:
 	STATE_MAIN = 0
 	STATE_TITLE = 1
+	STATE_MOVING_TO_TITLE = 2
 
 	def __init__(self):
 		self.state = self.STATE_MAIN
@@ -85,11 +101,38 @@ class SVTPlay:
 			wt.start()
 			wt.join()
 			self.items = wt.items
-			SetListItems(self.items)
+			SetListItems(ID_LIST_MAIN, self.items)
 		elif self.state == self.STATE_TITLE:
-			# FIXME: should start two workerthreads, to download search results
-			# FIXME: then single out items with expected title and call SetListItems
+			i = self.items[0]
+			del self.items[:]
+
+			q = i['title']
+			q = urllib.quote(q)
+			url = "http://xml.svtplay.se/v1/search/96238&q=" + q
+
+			wt0 = WorkerThread(url + "&expression=full", WorkerThread.TYPE_MENU)
+			wt1 = WorkerThread(url + "&expression=sample", WorkerThread.TYPE_MENU)
+			wt0.start()
+			wt1.start()
+			wt0.join()
+			wt1.join()
+			self.items = wt0.items
+			self.items += wt1.items
+			# FIXME: remove extra matches
+			SetListItems(ID_LIST_TITLE, self.items)
+		else:
+			raise Exception("unexpected state")
+
+	def onUnLoad(self):
+		print "SVTPlay.onUnLoad"
+
+		# FIXME: possible to simplify things by not using MOVING_TO?
+		if self.state == self.STATE_MAIN:
 			pass
+		elif self.state == self.STATE_TITLE:
+			self.state = self.STATE_MAIN
+		elif self.state == self.STATE_MOVING_TO_TITLE:
+			self.state = self.STATE_TITLE
 		else:
 			raise Exception("unexpected state")
 
@@ -97,11 +140,17 @@ class SVTPlay:
 		print "SVTPlay.onClick", index
 
 		if self.state == self.STATE_MAIN:
-			# FIXME: should set state to STATE_TITLE, call ActivateWindow, wait for OnLoad callback
-
 			i = self.items[index]
-			# FIXME: should consult self.state; for now, do the easiest thing
-			url = "http://www.svtplay.se/t/" + i['id']
+			# FIXME: should use a stack of items mirroring the window stack?
+			# today's framework for mode transitions and parameter passing  is
+			# lacking in so many ways and should be improved
+			self.items = [i]
+			self.state = self.STATE_MOVING_TO_TITLE
+			ActivateWindow(ID_WINDOW_TITLE)
+		elif self.state == self.STATE_TITLE:
+			i = self.items[index]
+			id = i['guid'].split("/")[-1]
+			url = "http://www.svtplay.se/v/" + id
 			Play(url)
 		else:
 			raise Exception("unexpected state")
@@ -111,6 +160,10 @@ _svtplay = SVTPlay()
 def OnLoad():
 	global _svtplay
 	_svtplay.onLoad()
+
+def OnUnLoad():
+	global _svtplay
+	_svtplay.onUnLoad()
 
 def OnClick(index):
 	global _svtplay
